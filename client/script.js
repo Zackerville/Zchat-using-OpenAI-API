@@ -1,3 +1,4 @@
+// import { resolveConfig } from 'vite';
 import bot from './assets/bot.svg';
 import user from './assets/user.svg';
 
@@ -78,7 +79,33 @@ const handleSubmit = async (e) =>
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     const messageDiv = document.getElementById(uniqueID);
-    loading(messageDiv);
+    loading(messageDiv)
+
+    const response = await fetch('http://localhost:5000', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            prompt: data.get('prompt')
+        })
+    })
+    clearInterval(loadInterval)
+    messageDiv.innerHTML = " "
+
+    if(response.ok)
+    {
+        const data = await response.json();
+        const parse_data = data.bot.trim();
+
+        typeText(messageDiv, parse_data);
+    }
+    else 
+    {
+        const err = await response.text()
+        messageDiv.innerHTML = "Something went wrong!"
+        alert(err)
+    }
 }
 
 form.addEventListener('submit', handleSubmit);
